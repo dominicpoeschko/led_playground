@@ -4,3 +4,6 @@
 [submodule "kvasir"]
 	path = kvasir
 	url = https://github.com/kvasir-io/Kvasir_SDK.git
+[submodule "mcufont"]
+	path = mcufont
+	url = https://github.com/dominicpoeschko/mcufont.git
