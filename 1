@@ -1,6 +1,6 @@
 #include "ApplicationConfig.hpp"
 //
-#include <string>
+
 #include <array>
 #include <span>
 #include <algorithm>
@@ -55,9 +55,20 @@ static void limit(std::span<RGB> leds, float limit_amps) {
     }
 }
 
-static void fill(std::span<RGB> leds,RGB const& v){
-    for(auto& vv : leds){
-        vv = v;
+static void fill(std::span<RGB> leds, const std::string& text) {
+    std::size_t textIndex = 0;
+
+    for(auto& vv : leds) {
+        if (textIndex < text.length(){
+            vv.data[0] = static_cast<std::uint8_t>(text[textIndex]);
+            vv.data[1] = static_cast<std::uint8_t>(text[textIndex]);
+            vv.data[2] = static_cast<std::uint8_t>(text[textIndex]);
+            textIndex++;
+        } else {
+            vv.data[0] = 0;
+            vv.data[1] = 0;
+            vv.data[2] = 0;
+        }
     }
 }
 
@@ -73,7 +84,7 @@ static void snake_pattern_run(std::span<RGB> leds) {
     std::rotate(leds.begin(), leds.begin() + 1, leds.end());
 }
 
-static void rainbow(std::span<RGB> leds) { ::fill(leds, RGB{1, 1, 1}); }
+static void rainbow(std::span<RGB> leds) { fill(leds, RGB{1, 1, 1}); }
 
 static RGB next_color(RGB color) {
     if(color.r() != 0) {
@@ -102,28 +113,16 @@ static RGB next_color(RGB color) {
     }
     return RGB{255, 0, 0};
 }
-static void TexDisplay(std::span<RGB> leds, int num_leds, const std::string& text, const RGB& color){
-    fill(leds, RGB{0,0,0});
-    int textIndex = 0;
-
-    for (int i = 0; i < num_leds; ++i){
-        if (textIndex >= text.length()){
-            textIndex = 0;
-        }
-        leds[i] = color;
-        ++textIndex;
-    }
-}
 
 int main() {
     UC_LOG_D("{}", CMakeGitVersion::FullVersion);
     auto                            next = Clock::now();
     RGB                             color{255, 0, 0};
     Kvasir::StaticVector<RGB, 1024> leds;
-    const int num_leds = 256;
 
     leds.resize(256);
     rainbow(leds);
+    fill(leds, "<3 DOMI <3");
     while(true) {
         if(WS2812::ready() && Clock::now() > next) {
             //std::rotate(leds.begin(), leds.end(), leds.begin());
@@ -133,7 +132,6 @@ int main() {
             WS2812::send(std::span{leds});
             next += 1s;
             UC_LOG_D("xx");
-            TexDisplay(leds, num_leds, "DOMI", RGB{255, 0, 0});
         }
         StackProtector::handler();
         WS2812::handler();
