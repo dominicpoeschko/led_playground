@@ -68,12 +68,24 @@ static void snake_pattern(std::span<RGB> leds) {
     leds[3].data[0] = 9;
     leds[5].data[0] = 10;
 }
+static void setPixel(std::span<RGB> leds, unsigned x_pos, unsigned y_pos,const RGB& color ){
+    unsigned max_width = 32;
+    unsigned max_height = 8;
+    int index =0;
+    if (x_pos%2 != 0){
+        index = (x_pos+1)*8-(y_pos+1);
+    }else{
+        index = x_pos*8+y_pos;
+    }
+    leds[index] = color;
+}
+
 
 static void snake_pattern_run(std::span<RGB> leds) {
     std::rotate(leds.begin(), leds.begin() + 1, leds.end());
 }
 
-static void rainbow(std::span<RGB> leds) { ::fill(leds, RGB{1, 1, 1}); }
+static void rainbow(std::span<RGB> leds) {fill(leds, RGB{1, 1, 1}); }
 
 static RGB next_color(RGB color) {
     if(color.r() != 0) {
@@ -102,7 +114,7 @@ static RGB next_color(RGB color) {
     }
     return RGB{255, 0, 0};
 }
-static void TexDisplay(std::span<RGB> leds, int num_leds, const std::string& text, const RGB& color){
+static void TexDisplay(std::span<RGB> leds, int num_leds, std::string_view text, const RGB& color){
     fill(leds, RGB{0,0,0});
     int textIndex = 0;
 
@@ -128,15 +140,20 @@ int main() {
         if(WS2812::ready() && Clock::now() > next) {
             //std::rotate(leds.begin(), leds.end(), leds.begin());
             color = next_color(color);
-            fill(leds, color);
-            limit(leds, 0.5f);
-            WS2812::send(std::span{leds});
+            //fill(leds, color);
+            //limit(leds, 0.5f);
+          
             next += 1s;
             UC_LOG_D("xx");
-            TexDisplay(leds, num_leds, "DOMI", RGB{255, 0, 0});
+            //TexDisplay(leds, num_leds, "", RGB{255, 0, 0});
+            setPixel(leds, 3, 3, RGB{0,5,0});
+            limit(leds, 0.5f);
+            WS2812::send(std::span{leds});
+ 
         }
         StackProtector::handler();
         WS2812::handler();
+
     }
 }
 
